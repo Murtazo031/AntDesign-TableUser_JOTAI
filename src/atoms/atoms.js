@@ -5,7 +5,7 @@ export const Users = atom([
     id: 1,
     avatar: { user },
     name: "Robert",
-    suranme: "Robinson",
+    surname: "Robinson",
     email: "robert@gamil.com",
     city: "Dushanbe",
     status: false,
@@ -15,7 +15,7 @@ export const Users = atom([
     id: 2,
     avatar: { user },
     name: "Jack",
-    suranme: "London",
+    surname: "London",
     email: "london@gamil.com",
     city: "Khujand",
     status: false,
@@ -25,7 +25,7 @@ export const Users = atom([
     id: 3,
     avatar: { user },
     name: "Steve",
-    suranme: "Jobs",
+    surname: "Jobs",
     email: "stevejob@gamil.com",
     city: "California",
     status: true,
@@ -39,11 +39,13 @@ export const selected = atom(null);
 
 export const modalOpen = atom(false);
 
+export const modalEditOpen = atom(false)
+
 export const addNewUser = atom({
   id: Date.now(),
   avatar: "",
   name: "",
-  suranme: "",
+  surname: "",
   email: "",
   city: "",
   status: false,
@@ -54,7 +56,7 @@ export const editThisUser = atom({
    id: null,
    avatar: "",
    name: "",
-   surname: "", // Исправлено!
+   surname: "",
    email: "",
    city: "",
    status: false,

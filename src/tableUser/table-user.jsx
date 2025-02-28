@@ -1,5 +1,14 @@
 import { useAtom } from "jotai";
-import { addNewUser, editThisUser, modalOpen, open, searchBy, selected, Users } from "../atoms/atoms";
+import {
+  addNewUser,
+  editThisUser,
+  modalEditOpen,
+  modalOpen,
+  open,
+  searchBy,
+  selected,
+  Users,
+} from "../atoms/atoms";
 import {
   Button,
   Divider,
@@ -28,18 +37,21 @@ export default function TableUser() {
   const [users, setUsers] = useAtom(Users);
   const [Open, setOpen] = useAtom(open);
   const [selectedUser, setSelectedUser] = useAtom(selected);
-  const [editUser, setEditUser]= useAtom(editThisUser)
+  const [editUser, setEditUser] = useAtom(editThisUser);
 
   //MODAL
   const [isModalOpen, setIsModalOpen] = useAtom(modalOpen);
+
+  const [isModalEditOpen, setIsModalEditOpen] = useAtom(modalEditOpen);
+
   const showModal = () => {
     setIsModalOpen(true);
   };
 
-  const showModalEdit = (user)=>{
-    setEditUser(user)
-    setIsModalOpen(true)
-  }
+  const showModalEdit = (user) => {
+    setEditUser(user);
+    setIsModalEditOpen(true);
+  };
 
   const handleOk = (state, newUser) => {
     if (editUser.id) {
@@ -48,9 +60,11 @@ export default function TableUser() {
       add(newUser); // Если нет ID, значит добавляем нового
     }
     setIsModalOpen(state);
+    setIsModalEditOpen(state);
   };
-  
+
   const handleCancel = () => {
+    setIsModalEditOpen(false);
     setIsModalOpen(false);
   };
 
@@ -71,17 +85,19 @@ export default function TableUser() {
     );
   }
 
-
   //Theme
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const [dark,setDark] = useState("light")
   const changeTheme = (value) => {
     setTheme(value);
     localStorage.setItem("theme", value);
-     
+
     if (value === "dark") {
+      setDark("dark")
       document.body.style.backgroundColor = "#1e1e1e";
       document.body.style.color = "white";
     } else {
+      setDark("light")
       document.body.style.backgroundColor = "white";
       document.body.style.color = "black";
     }
@@ -103,9 +119,7 @@ export default function TableUser() {
     if (status === "") {
       setUsers(originalUsers);
     } else {
-      setUsers(
-        originalUsers.filter((user) => user.city === status)
-      );
+      setUsers(originalUsers.filter((user) => user.city === status));
     }
   }
 
@@ -129,9 +143,8 @@ export default function TableUser() {
     );
   }
 
-
   //SEARCH
-  const [search,setSearch]= useAtom(searchBy)
+  const [search, setSearch] = useAtom(searchBy);
 
   return (
     <div
@@ -153,6 +166,7 @@ export default function TableUser() {
           style={{
             fontSize: "32px",
             fontWeight: "700",
+            color:dark=="dark"?"white":"black"
           }}
         >
           User List
@@ -167,14 +181,14 @@ export default function TableUser() {
             +NEW
           </Button>
           <Segmented
-      shape="round"
-      options={[
-        { value: "light", icon: <SunOutlined /> },
-        { value: "dark", icon: <MoonOutlined /> },
-      ]}
-      value={theme}
-      onChange={changeTheme}
-    />
+            shape="round"
+            options={[
+              { value: "light", icon: <SunOutlined /> },
+              { value: "dark", icon: <MoonOutlined /> },
+            ]}
+            value={theme}
+            onChange={changeTheme}
+          />
         </div>
       </div>
       <div
@@ -212,13 +226,16 @@ export default function TableUser() {
             <Select.Option value="Bokhtar">Bokhtar</Select.Option>
           </Select>
         </div>
-        <Search onChange={(e)=>setSearch(e.target.value)} placeholder="input search text" />
+        <Search
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="input search text"
+        />
       </div>
       <table
         style={{ borderCollapse: "collapse", width: "100%", margin: "auto" }}
       >
         <thead
-          style={{ backgroundColor: "#F8F9FD", borderCollapse: "collapse" }}
+          style={{ backgroundColor: dark=="dark"?"grey":"#F8F9FD", borderCollapse: "collapse" }}
         >
           <tr>
             <th style={{ padding: "2vh", textAlign: "start" }}>
@@ -242,91 +259,96 @@ export default function TableUser() {
           </tr>
         </thead>
         <tbody>
-          {users.filter((user) =>user.name.includes(search))
-          .map((user) => {
-            return (
-              <tr key={user.id}>
-                <td
-                  style={{
-                    padding: "2vh",
-                    borderBottom: "1px solid lightgrey",
-                  }}
-                >
-                  <div
+          {users
+            .filter((user) => user.name.includes(search))
+            .map((user) => {
+              return (
+                <tr key={user.id}>
+                  <td
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
+                      padding: "2vh",
+                      borderBottom: "1px solid lightgrey",
                     }}
                   >
-                    <Image src={user.avatar.user} width={"10%"} />
-                    <div>
-                      <Typography style={{}}>
-                        {user.name} {user.suranme}
-                      </Typography>
-                      <Typography>{user.email}</Typography>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                      }}
+                    >
+                      <Image src={user.avatar.user} width={"10%"} />
+                      <div>
+                        <Typography style={{color:dark=="dark"?"white":"black"}}>
+                          {user.name} {user.surname}
+                        </Typography>
+                        <Typography style={{color:dark=="dark"?"white":"black"}}>{user.email}</Typography>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td
-                  style={{
-                    padding: "2vh",
-                    borderBottom: "1px solid lightgrey",
-                  }}
-                >
-                  <Typography>{user.city}</Typography>
-                </td>
-                <td
-                  style={{
-                    padding: "2vh",
-                    borderBottom: "1px solid lightgrey",
-                  }}
-                >
-                  <Button
-                    variant="solid"
-                    color={user.status ? "green" : "danger"}
-                    onClick={() => chek(user.id)}
+                  </td>
+                  <td
+                    style={{
+                      padding: "2vh",
+                      borderBottom: "1px solid lightgrey",
+                    }}
                   >
-                    {user.status ? "ACTIVE" : "INACTIVE"}
-                  </Button>
-                </td>
-                <td
-                  style={{
-                    padding: "2vh",
-                    borderBottom: "1px solid lightgrey",
-                  }}
-                >
-                  <Typography>{user.phone}</Typography>
-                </td>
-                <td
-                  style={{
-                    padding: "2vh",
-                    borderBottom: "1px solid lightgrey",
-                  }}
-                >
-                  <div style={{ display: "flex", gap: "5px" }}>
+                    <Typography style={{color:dark=="dark"?"white":"black"}}>{user.city}</Typography>
+                  </td>
+                  <td
+                    style={{
+                      padding: "2vh",
+                      borderBottom: "1px solid lightgrey",
+                    }}
+                  >
                     <Button
                       variant="solid"
-                      color="danger"
-                      onClick={() => deleteUser(user.id)}
+                      color={user.status ? "green" : "danger"}
+                      onClick={() => chek(user.id)}
                     >
-                      Del
+                      {user.status ? "ACTIVE" : "INACTIVE"}
                     </Button>
-                    <Button onClick={()=>showModalEdit(user)} variant="solid" color="green">
-                      Edit
-                    </Button>
-                    <Button
-                      onClick={() => showDrawer(true, user)}
-                      variant="solid"
-                      color="pink"
-                    >
-                      Info
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
+                  </td>
+                  <td
+                    style={{
+                      padding: "2vh",
+                      borderBottom: "1px solid lightgrey",
+                    }}
+                  >
+                    <Typography style={{color:dark=="dark"?"white":"black"}}>{user.phone}</Typography>
+                  </td>
+                  <td
+                    style={{
+                      padding: "2vh",
+                      borderBottom: "1px solid lightgrey",
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: "5px" }}>
+                      <Button
+                        variant="solid"
+                        color="danger"
+                        onClick={() => deleteUser(user.id)}
+                      >
+                        Del
+                      </Button>
+                      <Button
+                        onClick={() => showModalEdit(user)}
+                        variant="solid"
+                        color="green"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        onClick={() => showDrawer(true, user)}
+                        variant="solid"
+                        color="pink"
+                      >
+                        Info
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
         </tbody>
       </table>
       {/*Modal Info*/}
@@ -401,8 +423,8 @@ export default function TableUser() {
       </Drawer>
       {/*Modal Edit*/}
       <Modal
-        title="Add New"
-        open={isModalOpen}
+        title="Edit User"
+        open={isModalEditOpen}
         onOk={() => handleOk(false, editUser)}
         onCancel={handleCancel}
       >
@@ -415,8 +437,10 @@ export default function TableUser() {
           }}
         >
           <Input
-            value={editUser.avatar}
-            onChange={(e) => setEditUser({ ...editUser, avatar: e.target.value })}
+            value={editUser.avatar.user}
+            onChange={(e) =>
+              setEditUser({ ...editUser, avatar: e.target.value })
+            }
             placeholder=".png / .jpg / .jpeg"
           />
           <Input
@@ -425,20 +449,24 @@ export default function TableUser() {
             placeholder="Name"
           />
           <Input
-            value={editUser.suranme}
+            value={editUser.surname}
             onChange={(e) =>
-              setEditUser({ ...editUser, suranme: e.target.value })
+              setEditUser({ ...editUser, surname: e.target.value })
             }
             placeholder="Surname"
           />
           <Input
             value={editUser.email}
-            onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
+            onChange={(e) =>
+              setEditUser({ ...editUser, email: e.target.value })
+            }
             placeholder="Email"
           />
           <Select
             value={editUser.status}
-            onChange={(e) => setEditUser({ ...editUser, status: e.target.value })}
+            onChange={(value) =>
+              setEditUser({ ...editUser, status: value === "true" })
+            }
             style={{ width: "100%" }}
             placeholder="Choose Status"
           >
@@ -447,7 +475,7 @@ export default function TableUser() {
           </Select>
           <Select
             value={editUser.city}
-            onChange={(e) => setEditUser({ ...editUser, city: e.target.value })}
+            onChange={(value) => setEditUser({ ...editUser, city: value })}
             style={{ width: "100%" }}
             placeholder="Choose City"
           >
@@ -458,7 +486,9 @@ export default function TableUser() {
           </Select>
           <Input
             value={editUser.phone}
-            onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })}
+            onChange={(e) =>
+              setEditUser({ ...editUser, phone: e.target.value })
+            }
             placeholder="Phone"
             type="phone"
           />
@@ -492,7 +522,7 @@ export default function TableUser() {
           <Input
             value={addUser.suranme}
             onChange={(e) =>
-              setAddUser({ ...addUser, suranme: e.target.value })
+              setAddUser({ ...addUser, surname: e.target.value })
             }
             placeholder="Surname"
           />
